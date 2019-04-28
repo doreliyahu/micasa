@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import mysql.connector
 import ast
+import json
 app = Flask(__name__)
 
 mydb = mysql.connector.connect(
@@ -21,7 +22,7 @@ PHONE_NUMBER = 'phone_number'
 
 @app.route('/beta/login', methods=['POST'])
 def login():
-    params = ast.literal_eval(request.get_json())
+    params = request.get_json()
     if (MAIL in params or PHONE_NUMBER in params) and PASSWORD in params:
         if MAIL in params:
             mycursor.execute('SELECT u_id FROM users where email=%s and pass=%s', (params[MAIL], params[PASSWORD]))
@@ -36,7 +37,7 @@ def login():
 @app.route('/beta/register/', methods=['POST'])
 def register():
     try:
-        params = ast.literal_eval(request.get_json())
+        params = request.get_json()
         if (MAIL in params or PHONE_NUMBER in params) and NAME in params and PASSWORD in params:
             mycursor.execute('INSERT INTO users (name,pass,email,phone_number) VALUES (%s,%s,%s,%s)',
                              (params[NAME], params[PASSWORD], params[MAIL], params[PHONE_NUMBER]))
