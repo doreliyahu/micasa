@@ -18,6 +18,12 @@ MAIL = 'mail'
 PASSWORD = 'password'
 NAME = 'name'
 PHONE_NUMBER = 'phone_number'
+BID = 'b_id'
+CONTENT = 'content'
+DT = 'dt'
+IMAGE1 = 'image1'
+IMAGE2 = 'image2'
+IMAGE3 = 'image3'
 
 
 @app.route('/beta/login', methods=['POST'])
@@ -89,6 +95,37 @@ def get_apartments_and_buildings(u_id):
     j1 = get_apartments(u_id)
     j2 = get_buildings(u_id)
     return jsonify({'data': (j1.json['data'] + j2.json['data'])})
+
+
+@app.route('/beta/posts/<b_id>', methods=['GET'])
+def get_posts(b_id):
+    result = []
+    mycursor.execute('select * from posts where b_id =' + b_id)
+    apartments = mycursor.fetchall()
+    for apartment in apartments:
+        result.append({
+            'p_id': apartment[0],
+            'b_id': apartment[1],
+            'content': apartment[2],
+            'dt': apartment[3],
+            'image1': apartment[4],
+            'image2': apartment[5],
+            'image3': apartment[5],
+        })
+    return jsonify({'data': result})
+
+
+@app.route('/beta/add_post', methods=['POST'])
+def add_post():
+    try:
+        params = request.get_json()
+        if BID in params and CONTENT in params and DT in params:
+            mycursor.execute('INSERT INTO posts (b_id,content,dt,image1,image2,image3) VALUES (%s,%s,%s,%s,%s,%s)',
+                             (params[BID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
+            mydb.commit()
+            return jsonify({'data': str(mycursor.rowcount) + ' record inserted.'})
+    except mysql.connector.errors.IntegrityError as e:
+        return jsonify({'error': e.msg})
 
 
 if __name__ == '__main__':
