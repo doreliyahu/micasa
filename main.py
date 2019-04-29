@@ -120,11 +120,11 @@ def add_post():
     try:
         params = request.get_json()
         if IMAGE1 not in params:
-            params[IMAGE1]=''
+            params[IMAGE1]=None
         if IMAGE2 not in params:
-            params[IMAGE2]=''
+            params[IMAGE2]=None
         if IMAGE3 not in params:
-            params[IMAGE3]=''
+            params[IMAGE3]=None
         if BID in params and CONTENT in params and DT in params:
             mycursor.execute('INSERT INTO posts (b_id,content,dt,image1,image2,image3) VALUES (%s,%s,%s,%s,%s,%s)',
                              (params[BID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
