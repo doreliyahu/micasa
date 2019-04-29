@@ -123,10 +123,10 @@ def add_post():
             mycursor.execute('INSERT INTO posts (b_id,content,dt,image1,image2,image3) VALUES (%s,%s,%s,%s,%s,%s)',
                              (params[BID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
             mydb.commit()
-            return jsonify({'data': str(mycursor.rowcount) + ' record inserted.'})
-        return jsonify({'error': 'wrong parameters'})
+            return jsonify({"data": str(mycursor.rowcount) + " record inserted."})
+        return jsonify({"error": "wrong parameters"})
     except mysql.connector.errors.IntegrityError as e:
-        return jsonify({'error': e.msg})
+        return jsonify({"error": e.msg})
 
 
 if __name__ == '__main__':
