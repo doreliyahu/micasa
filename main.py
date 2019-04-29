@@ -40,7 +40,7 @@ def login():
     return jsonify({'error': 'wrong details'})
 
 
-@app.route('/beta/register/', methods=['POST'])
+@app.route('/beta/register', methods=['POST'])
 def register():
     try:
         params = request.get_json()
@@ -124,6 +124,7 @@ def add_post():
                              (params[BID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
             mydb.commit()
             return jsonify({'data': str(mycursor.rowcount) + ' record inserted.'})
+        return jsonify({'error': 'wrong parameters'})
     except mysql.connector.errors.IntegrityError as e:
         return jsonify({'error': e.msg})
 
