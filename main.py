@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import mysql.connector
+import uuid
 
 
 app = Flask(__name__)
@@ -42,21 +43,24 @@ def login():
             mycursor.execute('SELECT u_id FROM users where phone_number=%s and pass=%s', (params[PHONE_NUMBER], params[PASSWORD]))
         myresult = mycursor.fetchall()
         if len(myresult) > 0:
-            return jsonify({'user_id': myresult[0][0]})
-    return jsonify({'error': 'wrong details'})
+            return jsonify({"data":{"user_id": myresult[0][0]}})
+    return jsonify({"error": "wrong details"})
 
 
 @app.route('/beta/register', methods=['POST'])
 def register():
     try:
         params = request.get_json()
-        if (MAIL in params or PHONE_NUMBER in params) and NAME in params and PASSWORD in params:
-            mycursor.execute('INSERT INTO users (u_id,name,pass,email,phone_number) VALUES (UUID(),%s,%s,%s,%s)',
-                             (params[NAME], params[PASSWORD], params[MAIL], params[PHONE_NUMBER]))
+        if PHONE_NUMBER not in params:
+            params[PHONE_NUMBER] = None
+        if MAIL in params and NAME in params and PASSWORD in params:
+            guid = str(uuid.uuid4())
+            mycursor.execute('INSERT INTO users (u_id,name,pass,email,phone_number) VALUES (%s,%s,%s,%s,%s)',
+                             (guid, params[NAME], params[PASSWORD], params[MAIL], params[PHONE_NUMBER]))
             mydb.commit()
-            return jsonify({'data': str(mycursor.rowcount) + ' record inserted.'})
+            return jsonify({"data": {"u_id": guid}})
     except mysql.connector.errors.IntegrityError as e:
-        return jsonify({'error': e.msg})
+        return jsonify({"error": e.msg})
 
 
 @app.route('/beta/apartments/<u_id>', methods=['GET'])
@@ -75,7 +79,7 @@ def get_apartments(u_id):
             'street': apartment[4],
             'number': apartment[5],
         })
-    return jsonify({'data': result})
+    return jsonify({"data": result})
 
 
 @app.route('/beta/buildings/<u_id>', methods=['GET'])
@@ -93,14 +97,14 @@ def get_buildings(u_id):
             'street': apartment[4],
             'number': apartment[5],
         })
-    return jsonify({'data': result})
+    return jsonify({"data": result})
 
 
 @app.route('/beta/apartments_and_buildings/<u_id>', methods=['GET'])
 def get_apartments_and_buildings(u_id):
     j1 = get_apartments(u_id)
     j2 = get_buildings(u_id)
-    return jsonify({'data': (j1.json['data'] + j2.json['data'])})
+    return jsonify({"data": (j1.json["data"] + j2.json["data"])})
 
 
 @app.route('/beta/add_building', methods=['POST'])
@@ -110,10 +114,11 @@ def add_building():
         if NAME not in params:
             params[NAME] = None
         if COUNTRY in params and CITY in params and STREET in params and NUMBER in params:
-            mycursor.execute('INSERT INTO buildings (b_id,country,city,street,number,name) VALUES (UUID(),%s,%s,%s,%s,%s)',
-                             (params[COUNTRY], params[CITY], params[STREET], params[NUMBER], params[NAME]))
+            guid = str(uuid.uuid4())
+            mycursor.execute('INSERT INTO buildings (b_id,country,city,street,number,name) VALUES (%s,%s,%s,%s,%s,%s)',
+                             (guid,params[COUNTRY], params[CITY], params[STREET], params[NUMBER], params[NAME]))
             mydb.commit()
-            return jsonify({"data": str(mycursor.rowcount) + " record inserted."})
+            return jsonify({"data": {"b_id": guid}})
         return jsonify({"error": "wrong parameters"})
     except mysql.connector.errors.IntegrityError as e:
         return jsonify({"error": e.msg})
@@ -139,7 +144,7 @@ def get_posts(b_id):
             'image2': apartment[6],
             'image3': apartment[7],
         })
-    return jsonify({'data': result})
+    return jsonify({"data": result})
 
 
 @app.route('/beta/add_post', methods=['POST'])
@@ -153,10 +158,11 @@ def add_post():
         if IMAGE3 not in params:
             params[IMAGE3]=None
         if BID in params and CONTENT in params and DT in params and UID in params:
-            mycursor.execute('INSERT INTO posts (p_id,b_id,u_id,content,dt,image1,image2,image3) VALUES (UUID(),%s,%s,%s,%s,%s,%s)',
-                             (params[UID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
+            guid = str(uuid.uuid4())
+            mycursor.execute('INSERT INTO posts (p_id,b_id,u_id,content,dt,image1,image2,image3) VALUES (%s,%s,%s,%s,%s,%s,%s)',
+                             (guid, params[UID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
             mydb.commit()
-            return jsonify({"data": str(mycursor.rowcount) + " record inserted."})
+            return jsonify({"data": {"p_id": guid}})
         return jsonify({"error": "wrong parameters"})
     except mysql.connector.errors.IntegrityError as e:
         return jsonify({"error": e.msg})
