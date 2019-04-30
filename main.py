@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 import mysql.connector
-import ast
-import json
+
+
 app = Flask(__name__)
 
 mydb = mysql.connector.connect(
@@ -19,11 +19,17 @@ PASSWORD = 'password'
 NAME = 'name'
 PHONE_NUMBER = 'phone_number'
 BID = 'b_id'
+UID = 'u_id'
+AID = 'a_id'
 CONTENT = 'content'
 DT = 'dt'
 IMAGE1 = 'image1'
 IMAGE2 = 'image2'
 IMAGE3 = 'image3'
+COUNTRY = 'country'
+CITY = 'city'
+STREET = 'street'
+NUMBER = 'number'
 
 
 @app.route('/beta/login', methods=['POST'])
@@ -45,7 +51,7 @@ def register():
     try:
         params = request.get_json()
         if (MAIL in params or PHONE_NUMBER in params) and NAME in params and PASSWORD in params:
-            mycursor.execute('INSERT INTO users (name,pass,email,phone_number) VALUES (%s,%s,%s,%s)',
+            mycursor.execute('INSERT INTO users (u_id,name,pass,email,phone_number) VALUES (UUID(),%s,%s,%s,%s)',
                              (params[NAME], params[PASSWORD], params[MAIL], params[PHONE_NUMBER]))
             mydb.commit()
             return jsonify({'data': str(mycursor.rowcount) + ' record inserted.'})
@@ -97,11 +103,26 @@ def get_apartments_and_buildings(u_id):
     return jsonify({'data': (j1.json['data'] + j2.json['data'])})
 
 
+@app.route('/beta/add_building', methods=['POST'])
+def add_building():
+    try:
+        params = request.get_json()
+        if NAME not in params:
+            params[NAME] = None
+        if COUNTRY in params and CITY in params and STREET in params and NUMBER in params:
+            mycursor.execute('INSERT INTO buildings (b_id,country,city,street,number,name) VALUES (UUID(),%s,%s,%s,%s,%s)',
+                             (params[COUNTRY], params[CITY], params[STREET], params[NUMBER], params[NAME]))
+            mydb.commit()
+            return jsonify({"data": str(mycursor.rowcount) + " record inserted."})
+        return jsonify({"error": "wrong parameters"})
+    except mysql.connector.errors.IntegrityError as e:
+        return jsonify({"error": e.msg})
+
+
 @app.route('/beta/posts/<b_id>', methods=['GET'])
 def get_posts(b_id):
     result = []
-    mycursor.execute('select * from posts as p left OUTER join users as u on p.u_id = u.u_id '
-                     'where b_id=' + b_id)
+    mycursor.execute('select * from posts as p left OUTER join users as u on p.u_id = u.u_id where b_id=' + b_id)
     apartments = mycursor.fetchall()
     for apartment in apartments:
         result.append({
@@ -131,9 +152,9 @@ def add_post():
             params[IMAGE2]=None
         if IMAGE3 not in params:
             params[IMAGE3]=None
-        if BID in params and CONTENT in params and DT in params:
-            mycursor.execute('INSERT INTO posts (b_id,content,dt,image1,image2,image3) VALUES (%s,%s,%s,%s,%s,%s)',
-                             (params[BID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
+        if BID in params and CONTENT in params and DT in params and UID in params:
+            mycursor.execute('INSERT INTO posts (p_id,b_id,u_id,content,dt,image1,image2,image3) VALUES (UUID(),%s,%s,%s,%s,%s,%s)',
+                             (params[UID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
             mydb.commit()
             return jsonify({"data": str(mycursor.rowcount) + " record inserted."})
         return jsonify({"error": "wrong parameters"})
