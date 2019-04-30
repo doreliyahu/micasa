@@ -100,17 +100,23 @@ def get_apartments_and_buildings(u_id):
 @app.route('/beta/posts/<b_id>', methods=['GET'])
 def get_posts(b_id):
     result = []
-    mycursor.execute('select * from posts where b_id =' + b_id)
+    mycursor.execute('select * from posts as p left OUTER join users as u on p.u_id = u.u_id '
+                     'where b_id=' + b_id)
     apartments = mycursor.fetchall()
     for apartment in apartments:
         result.append({
             'p_id': apartment[0],
             'b_id': apartment[1],
-            'content': apartment[2],
-            'dt': apartment[3],
-            'image1': apartment[4],
-            'image2': apartment[5],
-            'image3': apartment[5],
+            'user': {
+                'name': apartment[10],
+                'u_id': apartment[2],
+                'avatar': apartment[13]
+            },
+            'content': apartment[3],
+            'dt': apartment[4],
+            'image1': apartment[5],
+            'image2': apartment[6],
+            'image3': apartment[7],
         })
     return jsonify({'data': result})
 
