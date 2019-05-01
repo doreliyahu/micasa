@@ -182,7 +182,7 @@ def add_post():
 
 
 @app.route('/beta/add_issue', methods=['POST'])
-def add_post():
+def add_issue():
     try:
         params = request.get_json()
         if CONTENT in params and IID in params and CATEGORY in params and UID in params and BID in params:
