@@ -22,7 +22,11 @@ PHONE_NUMBER = 'phone_number'
 BID = 'b_id'
 UID = 'u_id'
 AID = 'a_id'
+IID = 'i_id'
+PID = 'p_id'
 CONTENT = 'content'
+STATUS = 'status'
+CATEGORY = 'category'
 DT = 'dt'
 IMAGE1 = 'image1'
 IMAGE2 = 'image2'
@@ -30,7 +34,11 @@ IMAGE3 = 'image3'
 COUNTRY = 'country'
 CITY = 'city'
 STREET = 'street'
+AVATAR = 'avatar'
 NUMBER = 'number'
+CREATION_TIME = 'creation_time'
+DATA = 'data'
+ERROR = 'error'
 
 
 @app.route('/beta/login', methods=['POST'])
@@ -46,10 +54,10 @@ def login():
             mycursor.execute('UPDATE users SET last_login = %s WHERE email=%s and pass=%s',
                              (current_ts, params[MAIL], params[PASSWORD]))
             mydb.commit()
-            return jsonify({"data": {"user_id": myresult[0][0]}})
+            return jsonify({DATA: {UID: myresult[0][0]}})
         else:
-            return jsonify({"error": "wrong email or password"})
-    return jsonify({"error": "wrong details"})
+            return jsonify({ERROR: "wrong email or password"})
+    return jsonify({ERROR: "wrong details"})
 
 
 @app.route('/beta/register', methods=['POST'])
@@ -63,9 +71,9 @@ def register():
             mycursor.execute('INSERT INTO users (u_id,name,pass,email,phone_number) VALUES (%s,%s,%s,%s,%s)',
                              (guid, params[NAME], params[PASSWORD], params[MAIL], params[PHONE_NUMBER]))
             mydb.commit()
-            return jsonify({"data": {"u_id": guid}})
+            return jsonify({DATA: {UID: guid}})
     except mysql.connector.errors.IntegrityError as e:
-        return jsonify({"error": e.msg})
+        return jsonify({ERROR: e.msg})
 
 
 @app.route('/beta/apartments/<u_id>', methods=['GET'])
@@ -77,14 +85,14 @@ def get_apartments(u_id):
     apartments = mycursor.fetchall()
     for apartment in apartments:
         result.append({
-            'b_id': apartment[0],
-            'a_id': apartment[1],
-            'country': apartment[2],
-            'city': apartment[3],
-            'street': apartment[4],
-            'number': apartment[5],
+            BID: apartment[0],
+            AID: apartment[1],
+            COUNTRY: apartment[2],
+            CITY: apartment[3],
+            STREET: apartment[4],
+            NUMBER: apartment[5],
         })
-    return jsonify({"data": result})
+    return jsonify({DATA: result})
 
 
 @app.route('/beta/buildings/<u_id>', methods=['GET'])
@@ -95,21 +103,21 @@ def get_buildings(u_id):
     apartments = mycursor.fetchall()
     for apartment in apartments:
         result.append({
-            'b_id': apartment[0],
+            BID: apartment[0],
             'is_admin': apartment[1],
-            'country': apartment[2],
-            'city': apartment[3],
-            'street': apartment[4],
-            'number': apartment[5],
+            COUNTRY: apartment[2],
+            CITY: apartment[3],
+            STREET: apartment[4],
+            NUMBER: apartment[5],
         })
-    return jsonify({"data": result})
+    return jsonify({DATA: result})
 
 
 @app.route('/beta/apartments_and_buildings/<u_id>', methods=['GET'])
 def get_apartments_and_buildings(u_id):
     j1 = get_apartments(u_id)
     j2 = get_buildings(u_id)
-    return jsonify({"data": (j1.json["data"] + j2.json["data"])})
+    return jsonify({DATA: (j1.json[DATA] + j2.json[DATA])})
 
 
 @app.route('/beta/add_building', methods=['POST'])
@@ -123,10 +131,10 @@ def add_building():
             mycursor.execute('INSERT INTO buildings (b_id,country,city,street,number,name) VALUES (%s,%s,%s,%s,%s,%s)',
                              (guid,params[COUNTRY], params[CITY], params[STREET], params[NUMBER], params[NAME]))
             mydb.commit()
-            return jsonify({"data": {"b_id": guid}})
-        return jsonify({"error": "wrong parameters"})
+            return jsonify({DATA: {"b_id": guid}})
+        return jsonify({ERROR: "wrong parameters"})
     except mysql.connector.errors.IntegrityError as e:
-        return jsonify({"error": e.msg})
+        return jsonify({ERROR: e.msg})
 
 
 @app.route('/beta/posts/<b_id>', methods=['GET'])
@@ -136,20 +144,20 @@ def get_posts(b_id):
     apartments = mycursor.fetchall()
     for apartment in apartments:
         result.append({
-            'p_id': apartment[0],
-            'b_id': apartment[1],
+            PID: apartment[0],
+            BID: apartment[1],
             'user': {
-                'name': apartment[10],
-                'u_id': apartment[2],
-                'avatar': apartment[13]
+                NAME: apartment[10],
+                UID: apartment[2],
+                AVATAR: apartment[13]
             },
-            'content': apartment[3],
-            'dt': apartment[4],
-            'image1': apartment[5],
-            'image2': apartment[6],
-            'image3': apartment[7],
+            CONTENT: apartment[3],
+            DT: apartment[4],
+            IMAGE1: apartment[5],
+            IMAGE2: apartment[6],
+            IMAGE3: apartment[7],
         })
-    return jsonify({"data": result})
+    return jsonify({DATA: result})
 
 
 @app.route('/beta/add_post', methods=['POST'])
@@ -167,10 +175,25 @@ def add_post():
             mycursor.execute('INSERT INTO posts (p_id,b_id,u_id,content,dt,image1,image2,image3) VALUES (%s,%s,%s,%s,%s,%s,%s)',
                              (guid, params[UID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
             mydb.commit()
-            return jsonify({"data": {"p_id": guid}})
-        return jsonify({"error": "wrong parameters"})
+            return jsonify({DATA: {PID: guid}})
+        return jsonify({ERROR: "wrong parameters"})
     except mysql.connector.errors.IntegrityError as e:
-        return jsonify({"error": e.msg})
+        return jsonify({ERROR: e.msg})
+
+
+@app.route('/beta/add_issue', methods=['POST'])
+def add_post():
+    try:
+        params = request.get_json()
+        if CONTENT in params and IID in params and CATEGORY in params and UID in params and BID in params:
+            guid = str(uuid.uuid4())
+            mycursor.execute('INSERT INTO issues (i_id,b_id,u_id,content,category,creation_time,status) VALUES (%s,%s,%s,%s,%s,%s,%d)',
+                             (guid, params[BID], params[UID], params[CONTENT], params[CATEGORY], params[CREATION_TIME], 0))
+            mydb.commit()
+            return jsonify({DATA: {IID: guid}})
+        return jsonify({ERROR: "wrong parameters"})
+    except mysql.connector.errors.IntegrityError as e:
+        return jsonify({ERROR: e.msg})
 
 
 if __name__ == '__main__':
