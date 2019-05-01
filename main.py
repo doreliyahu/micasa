@@ -185,7 +185,7 @@ def add_post():
 def add_issue():
     try:
         params = request.get_json()
-        if CONTENT in params and IID in params and CATEGORY in params and UID in params and BID in params:
+        if CONTENT in params and CATEGORY in params and UID in params and BID in params:
             guid = str(uuid.uuid4())
             mycursor.execute('INSERT INTO issues (i_id,b_id,u_id,content,category,creation_time,status) VALUES (%s,%s,%s,%s,%s,%s,%d)',
                              (guid, params[BID], params[UID], params[CONTENT], params[CATEGORY], params[CREATION_TIME], 0))
