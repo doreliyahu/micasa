@@ -15,7 +15,7 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 
 
-MAIL = 'mail'
+MAIL = 'email'
 PASSWORD = 'password'
 NAME = 'name'
 PHONE_NUMBER = 'phone_number'
@@ -36,14 +36,12 @@ NUMBER = 'number'
 @app.route('/beta/login', methods=['POST'])
 def login():
     params = request.get_json()
-    if (MAIL in params or PHONE_NUMBER in params) and PASSWORD in params:
+    if MAIL in params and PASSWORD in params:
         if MAIL in params:
             mycursor.execute('SELECT u_id FROM users where email=%s and pass=%s', (params[MAIL], params[PASSWORD]))
-        elif PHONE_NUMBER in params:
-            mycursor.execute('SELECT u_id FROM users where phone_number=%s and pass=%s', (params[PHONE_NUMBER], params[PASSWORD]))
         myresult = mycursor.fetchall()
         if len(myresult) > 0:
-            return jsonify({"data":{"user_id": myresult[0][0]}})
+            return jsonify({"data": {"user_id": myresult[0][0]}})
     return jsonify({"error": "wrong details"})
 
 
