@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import mysql.connector
 import uuid
+import datetime
 
 
 app = Flask(__name__)
@@ -37,8 +38,9 @@ NUMBER = 'number'
 def login():
     params = request.get_json()
     if MAIL in params and PASSWORD in params:
-        mycursor.execute('UPDATE users SET last_login = GETDATE() WHERE email=%s and pass=%s',
-                         (params[MAIL], params[PASSWORD]))
+        current_ts = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        mycursor.execute('UPDATE users SET last_login = %s WHERE email=%s and pass=%s',
+                         (current_ts, params[MAIL], params[PASSWORD]))
         mydb.commit()
         myresult = mycursor.fetchall()
         if '0' in myresult:
