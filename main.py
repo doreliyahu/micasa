@@ -37,11 +37,14 @@ NUMBER = 'number'
 def login():
     params = request.get_json()
     if MAIL in params and PASSWORD in params:
-        if MAIL in params:
-            mycursor.execute('SELECT u_id FROM users where email=%s and pass=%s', (params[MAIL], params[PASSWORD]))
+        mycursor.execute('UPDATE users SET last_login = GETDATE() WHERE email=%s and pass=%s',
+                         (params[MAIL], params[PASSWORD]))
+        mydb.commit()
         myresult = mycursor.fetchall()
-        if len(myresult) > 0:
-            return jsonify({"data": {"user_id": myresult[0][0]}})
+        if '0' in myresult:
+            return jsonify({"error": "wrong email or password"})
+        else:
+            return jsonify({"data": "login succeed"})
     return jsonify({"error": "wrong details"})
 
 
