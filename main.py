@@ -187,8 +187,8 @@ def add_issue():
         params = request.get_json()
         if CONTENT in params and CATEGORY in params and UID in params and BID in params:
             guid = str(uuid.uuid4())
-            mycursor.execute('INSERT INTO issues (i_id,b_id,u_id,content,category,creation_time,status) VALUES (%s,%s,%s,%s,%s,%s,%d)',
-                             (guid, params[BID], params[UID], params[CONTENT], params[CATEGORY], params[CREATION_TIME], 0))
+            mycursor.execute('INSERT INTO issues (i_id,b_id,u_id,content,category,creation_time,status) VALUES (%s,%s,%s,%s,%s,%s,%s)',
+                             (guid, params[BID], params[UID], params[CONTENT], params[CATEGORY], params[CREATION_TIME], "0"))
             mydb.commit()
             return jsonify({DATA: {IID: guid}})
         return jsonify({ERROR: "wrong parameters"})
