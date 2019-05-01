@@ -1,8 +1,6 @@
 from flask import Flask, jsonify, request
 import mysql.connector
-import uuid
-import datetime
-import time
+import uuid,datetime,time
 
 
 app = Flask(__name__)
@@ -39,15 +37,18 @@ NUMBER = 'number'
 def login():
     params = request.get_json()
     if MAIL in params and PASSWORD in params:
-        current_ts = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-        mycursor.execute('UPDATE users SET last_login = %s WHERE email=%s and pass=%s',
-                         (current_ts, params[MAIL], params[PASSWORD]))
-        mydb.commit()
+
+
+        mycursor.execute('SELECT u_id FROM users where email=%s and pass=%s', (params[MAIL], params[PASSWORD]))
         myresult = mycursor.fetchall()
-        if '0' in myresult:
-            return jsonify({"error": "wrong email or password"})
+        if len(myresult) > 0:
+            current_ts = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            mycursor.execute('UPDATE users SET last_login = %s WHERE email=%s and pass=%s',
+                             (current_ts, params[MAIL], params[PASSWORD]))
+            mydb.commit()
+            return jsonify({"data": {"user_id": myresult[0][0]}})
         else:
-            return jsonify({"data": "login succeed"})
+            return jsonify({"error": "wrong email or password"})
     return jsonify({"error": "wrong details"})
 
 
