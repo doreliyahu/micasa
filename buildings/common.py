@@ -1,7 +1,7 @@
 from constants.constants import *
 from flask import jsonify
-from buildings.buildings import get_buildings,is_building_exists
-from buildings.apartments import get_apartments, get_apartments_array
+from ..buildings.buildings import get_buildings,is_building_exists
+from ..buildings.apartments import get_apartments, get_apartments_array
 
 
 def get_apartments_and_buildings(cursor, u_id):
