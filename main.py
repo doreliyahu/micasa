@@ -39,4 +39,8 @@ app.add_url_rule('/beta/add_issue', methods=['POST'], view_func=add_issue, defau
 app.add_url_rule('/beta/search/<content>', methods=['GET'], view_func=search, defaults={'cursor': mycursor})
 
 if __name__ == '__main__':
-    app.run(port=80, host='0.0.0.0', debug=True)
+    while True:
+        try:
+            app.run(port=80, host='0.0.0.0', debug=True)
+        except Exception as e:
+            app.run(port=80, host='0.0.0.0', debug=True)

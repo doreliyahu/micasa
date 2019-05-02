@@ -6,22 +6,23 @@ import mysql.connector
 
 def get_posts(cursor, b_id):
     result = []
-    cursor.execute('select * from posts as p left OUTER join users as u on p.u_id = u.u_id where b_id=' + b_id)
-    apartments = cursor.fetchall()
-    for apartment in apartments:
+    query = 'select * from posts as p left OUTER join users as u on p.u_id = u.u_id where b_id="' + b_id + '"'
+    cursor.execute(query)
+    posts = cursor.fetchall()
+    for post in posts:
         result.append({
-            PID: apartment[0],
-            BID: apartment[1],
+            PID: post[0],
+            BID: post[1],
             'user': {
-                NAME: apartment[10],
-                UID: apartment[2],
-                AVATAR: apartment[13]
+                NAME: post[10],
+                UID: post[2],
+                AVATAR: post[13]
             },
-            CONTENT: apartment[3],
-            DT: apartment[4],
-            IMAGE1: apartment[5],
-            IMAGE2: apartment[6],
-            IMAGE3: apartment[7],
+            CONTENT: post[3],
+            DT: post[4],
+            IMAGE1: post[5],
+            IMAGE2: post[6],
+            IMAGE3: post[7],
         })
     return jsonify({DATA: result})
 

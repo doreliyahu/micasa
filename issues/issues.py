@@ -5,7 +5,25 @@ import mysql.connector
 
 
 def get_issues(cursor, b_id):
-    pass
+    result = []
+    query = 'select * from issues as i left OUTER join users as u on i.u_id = u.u_id where b_id="' + b_id + '"'
+    cursor.execute(query)
+    issues = cursor.fetchall()
+    for issue in issues:
+        result.append({
+            IID: issue[0],
+            BID: issue[1],
+            'user': {
+                NAME: issue[9],
+                UID: issue[2],
+                AVATAR: issue[13]
+            },
+            CATEGORY: issue[3],
+            CONTENT: issue[4],
+            STATUS: issue[5],
+            CREATION_TIME: issue[6]
+        })
+    return jsonify({DATA: result})
 
 
 def add_issue(db):
