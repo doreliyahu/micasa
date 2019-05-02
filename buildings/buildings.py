@@ -6,7 +6,7 @@ import mysql.connector
 
 def get_buildings(cursor, u_id):
     result = []
-    cursor.execute('select m.b_id, m.is_admin,b.country,b.city,b.street,b.number from management as m ' +
+    cursor.execute('select m.b_id, m.is_admin,b.country,b.city,b.street,b.number,b.name from management as m ' +
                    'LEFT OUTER JOIN buildings as b on m.b_id = b.b_id where m.u_id ="' + u_id + '"')
     apartments = cursor.fetchall()
     for apartment in apartments:

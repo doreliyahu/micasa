@@ -4,7 +4,7 @@ from flask import jsonify
 
 def get_apartments(cursor, u_id):
     result = []
-    cursor.execute('select a.b_id, a.a_id, a.floor, a.a_number, b.country,b.city,b.street,b.number' +
+    cursor.execute('select a.b_id, a.a_id, a.floor, a.a_number, b.country,b.city,b.street,b.number,b.name' +
                    ' from apartments as a left outer join residence as r on r.a_id = a.a_id' +
                    ' LEFT OUTER JOIN buildings as b on a.b_id = b.b_id where r.u_id = "' + u_id + '"')
     apartments = cursor.fetchall()
