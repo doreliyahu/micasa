@@ -17,6 +17,7 @@ def get_apartments_and_buildings(cursor, u_id):
                 CITY: apartment[CITY],
                 STREET: apartment[STREET],
                 NUMBER: apartment[NUMBER],
+                NAME: apartment[NAME],
                 APARTMENTS: a.get_apartments_array(apartments, apartment[BID])
             })
     for building in buildings:
@@ -27,6 +28,7 @@ def get_apartments_and_buildings(cursor, u_id):
             CITY: building[CITY],
             STREET: building[STREET],
             NUMBER: building[NUMBER],
+            NAME: building[NAME],
             APARTMENTS: a.get_apartments_array(apartments, building[BID])
         })
     return jsonify({DATA: result})

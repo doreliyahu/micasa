@@ -17,6 +17,7 @@ def get_buildings(cursor, u_id):
             CITY: apartment[3],
             STREET: apartment[4],
             NUMBER: apartment[5],
+            NAME: apartment[6],
         })
     return jsonify({DATA: result})
 
