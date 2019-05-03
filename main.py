@@ -1,3 +1,5 @@
+import time
+import threading
 from flask import Flask, jsonify, request
 from users.login import login
 from users.register import register
@@ -10,10 +12,11 @@ from common.common import fetch_login
 from sqlalchemy import create_engine
 
 app = Flask(__name__)
-db = create_engine("mysql+pymysql://KHmZFwh4mA:hWP8GbQHs0@remotemysql.com/KHmZFwh4mA")
 
 
 def main():
+    db = create_engine("mysql+pymysql://KHmZFwh4mA:hWP8GbQHs0@remotemysql.com/KHmZFwh4mA")
+
     app.add_url_rule('/beta/fetch_login', methods=['POST'], view_func=fetch_login, defaults={'db': db})
 
     app.add_url_rule('/beta/login', methods=['POST'], view_func=login, defaults={'db': db})
@@ -35,12 +38,16 @@ def main():
     app.add_url_rule('/beta/add_issue', methods=['POST'], view_func=add_issue, defaults={'db': db})
 
     app.add_url_rule('/beta/search/<content>', methods=['GET'], view_func=search, defaults={'db': db})
+    app.add_url_rule('/beta/search/<content>', methods=['GET'], view_func=search, defaults={'db': db})
 
-    app.run(port=80, host='0.0.0.0', debug=True)
+    time.sleep(3600)
 
 
-
+def run_app():
+    app.run(port=80, host='0.0.0.0', debug=False)
 
 
 if __name__ == '__main__':
-    main()
+    threading.Thread(target=run_app).start()
+    while True:
+        main()
