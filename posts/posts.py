@@ -4,16 +4,15 @@ import uuid
 import mysql.connector
 
 
-def get_posts(cursor, b_id):
+def get_posts(db, b_id):
     result = []
     query = 'select * from posts as p left OUTER join users as u on p.u_id = u.u_id where b_id="' + b_id + '"'
-    cursor.execute(query)
-    posts = cursor.fetchall()
+    posts = db.connect().execute(query).cursor.fetchall()
     for post in posts:
         result.append({
             PID: post[0],
             BID: post[1],
-            'user': {
+            USER: {
                 NAME: post[10],
                 UID: post[2],
                 AVATAR: post[13]
@@ -38,11 +37,14 @@ def add_post(db):
             params[IMAGE3] = None
         if BID in params and CONTENT in params and DT in params and UID in params:
             guid = str(uuid.uuid4())
-            db.cursor().execute(
-                'INSERT INTO posts (p_id,b_id,u_id,content,dt,image1,image2,image3) VALUES (%s,%s,%s,%s,%s,%s,%s)',
-                (guid, params[UID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2], params[IMAGE3]))
-            db.commit()
-            return jsonify({DATA: {PID: guid}})
-        return jsonify({ERROR: "wrong parameters"})
+            result = db.connect().execute(
+                'INSERT INTO posts (p_id,b_id,u_id,content,dt,image1,image2,image3) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)',
+                (guid, params[BID], params[UID], params[CONTENT], params[DT], params[IMAGE1], params[IMAGE2],
+                 params[IMAGE3]))
+            if result.rowcount > 0:
+                return jsonify({DATA: {PID: guid}})
+            else:
+                return jsonify({ERROR: ZERO_ROWS_AFFECTED})
+        return jsonify({ERROR: WRONG_PARAMETERS})
     except mysql.connector.errors.IntegrityError as e:
         return jsonify({ERROR: e.msg})

@@ -4,9 +4,9 @@ from . import buildings as b
 from . import apartments as a
 
 
-def get_apartments_and_buildings(cursor, u_id):
-    apartments = a.get_apartments(cursor, u_id).json[DATA]
-    buildings = b.get_buildings(cursor, u_id).json[DATA]
+def get_apartments_and_buildings(db, u_id):
+    apartments = a.get_apartments(db, u_id).json[DATA]
+    buildings = b.get_buildings(db, u_id).json[DATA]
     result = []
     for apartment in apartments:
         if not b.is_building_exists(buildings,apartment[BID]):

@@ -27,3 +27,8 @@ DATA = 'data'
 ERROR = 'error'
 PERMISSION = 'permission'
 APARTMENTS = 'apartments'
+BUILDINGS = 'buildings'
+USER = 'user'
+
+ZERO_ROWS_AFFECTED = '0 rows affected'
+WRONG_PARAMETERS = 'wrong parameters'
